@@ -1,0 +1,120 @@
+# ======================================================================
+#  BRanks - configuracao geral
+#
+#  Os RANKS ficam em ranks.yml e as TAGS em tags.yml (na mesma pasta).
+#  Tudo pode ser feito por comandos (/rank e /tag) ou editando os arquivos
+#  e usando /rank recarregar.
+#
+#  Hierarquia: a ORDEM dos ranks no ranks.yml define quem e mais alto
+#  (o primeiro e o mais alto). Nao existem numeros de peso.
+#
+#  Cores: &a, &l ... | nomes (vermelho, azul, dourado) | hex (#FF8800, 1.16+)
+#
+#  Placeholders de formato:
+#    {jogador} {tag} {prefixo} {sufixo} {rank} {cor} {corchat} {mensagem}
+#  (Espacos entre tag/prefixo/sufixo sao colocados automaticamente.)
+# ======================================================================
+
+chat:
+  # Se voce usa outro plugin de chat, coloque false.
+  ativar: true
+  formato: "{tag}{prefixo}{cor}{jogador}{sufixo}&7: {corchat}{mensagem}"
+  # Jogadores com a permissao branks.chat.cores podem usar &a, &l... no chat
+  cores-na-mensagem: true
+
+tablist:
+  ativar: true
+  formato: "{prefixo}{cor}{jogador}"
+
+# Prefixo acima da cabeca e ordem da tab pela hierarquia dos ranks
+nametag:
+  ativar: true
+
+# Se false, o BRanks nao entrega permissoes (use isso se preferir LuckPerms)
+permissoes:
+  ativar: true
+
+mensagens:
+  sem-permissao: "&cVocê não tem permissão para isso."
+  apenas-jogador: "&cApenas jogadores podem usar este comando."
+  jogador-nao-encontrado: "&cJogador '{jogador}' não encontrado (ele precisa já ter entrado no servidor)."
+  rank-nao-existe: "&cO rank '{rank}' não existe. Use /rank lista."
+  rank-ja-existe: "&cO rank '{rank}' já existe."
+  nome-invalido: "&cNome inválido. Use apenas letras, números, - e _ (até 16 caracteres)."
+  nome-reservado: "&cEsse nome é reservado, escolha outro."
+  uso: "&cUso: &f{uso}"
+  rank-criado: "&aRank {rank} &acriado! Edite com /rank prefixo, /rank cor, /rank permissao..."
+  rank-apagado: "&aRank '{rank}' apagado."
+  rank-definido: "&aRank de &f{jogador} &aalterado para {rank}&a."
+  rank-limpo: "&aRank de &f{jogador} &aresetado para o padrão."
+  rank-recebido: "&aSeu rank agora é {rank}&a."
+  rank-editado: "&aRank {rank}&a atualizado: &f{campo} &a= &r{valor}"
+  cor-invalida: "&cCor inválida. Use um nome (vermelho, azul...), código (&c) ou hex (#FF8800)."
+  perm-adicionada: "&aPermissão &f{permissao} &aadicionada ao rank {rank}&a."
+  perm-removida: "&aPermissão &f{permissao} &aremovida do rank {rank}&a."
+  perm-ja-tem: "&cO rank {rank}&c já tem essa permissão."
+  perm-nao-tem: "&cO rank {rank}&c não tem essa permissão."
+  perm-lista: "&7Permissões de {rank}&7: &f{permissoes}"
+  padrao-definido: "&aO rank {rank}&a agora é o padrão (novos jogadores)."
+  herda-adicionado: "&aO rank {rank}&a agora herda de {outro}&a."
+  herda-removido: "&aO rank {rank}&a não herda mais de {outro}&a."
+  herda-invalido: "&cNão é possível herdar desse rank (ele mesmo, ou já herda)."
+  herda-nao-tem: "&cO rank {rank}&c não herda de {outro}&c."
+  mover-ok: "&aRank {rank}&a movido na hierarquia."
+  mover-limite: "&cO rank {rank}&c já está no limite da hierarquia."
+  recarregado: "&aBRanks recarregado!"
+  rank-lista-titulo: "&8&m   &r &bRanks &7(do mais alto ao mais baixo) &8&m   "
+  rank-lista-linha: "&7- &f{id} &7=> {prefixo}{cor}{nome}{padrao}"
+  rank-lista-padrao: " &8(padrão)"
+  rank-lista-vazia: "&7Nenhum rank criado. Use /rank criar <nome>."
+  info-linhas:
+    - "&8&m   &r &bInformações de &f{jogador} &8&m   "
+    - "&7Rank: {rank}"
+    - "&7Tag: &f{tag}"
+    - "&7Permissões do rank: &f{quantidade}"
+  info-sem-rank: "&7(nenhum)"
+  tag-nenhuma: "&7(nenhuma)"
+  tag-nao-existe: "&cA tag '{tag}' não existe. Use /tag lista."
+  tag-ja-existe: "&cA tag '{tag}' já existe."
+  tag-sem-permissao: "&cVocê não tem permissão para usar a tag {texto}&c."
+  tag-selecionada: "&aVocê agora usa a tag {texto}&a."
+  tag-removida: "&aSua tag foi removida."
+  tag-sem-tag: "&cVocê não está usando nenhuma tag."
+  tag-definida: "&aTag de &f{jogador} &aalterada para {texto}&a."
+  tag-limpa: "&aTag de &f{jogador} &aremovida."
+  tag-criada: "&aTag &f{tag} &acriada: {texto}"
+  tag-apagada: "&aTag '{tag}' apagada."
+  tag-editada: "&aTag &f{tag}&a atualizada: &f{campo} &a= &r{valor}"
+  tag-lista-titulo: "&8&m   &r &bTags &7(clique /tag <nome>) &8&m   "
+  tag-lista-livre: "&a{id} &7- {texto}"
+  tag-lista-bloqueada: "&c{id} &7- {texto} &8(bloqueada)"
+  tag-lista-vazia: "&7Nenhuma tag criada."
+  ajuda-rank:
+    - "&8&m   &r &bBRanks &7- Comandos &8&m   "
+    - "&f/rank lista &7- lista os ranks"
+    - "&f/rank info [jogador] &7- mostra o rank de alguém"
+  ajuda-rank-admin:
+    - "&f/rank definir <jogador> <rank> &7(ou /setrank)"
+    - "&f/rank criar <nome> &7- cria um rank"
+    - "&f/rank apagar <rank> &7- apaga um rank"
+    - "&f/rank nome <rank> <texto> &7- nome de exibição"
+    - "&f/rank prefixo <rank> <texto|nenhum>"
+    - "&f/rank sufixo <rank> <texto|nenhum>"
+    - "&f/rank cor <rank> <cor> &7- cor do nome"
+    - "&f/rank corchat <rank> <cor> &7- cor da mensagem"
+    - "&f/rank permissao <rank> <add|remover|lista> [permissão]"
+    - "&f/rank herda <rank> <add|remover> <outro-rank>"
+    - "&f/rank padrao <rank> &7- rank dos novos jogadores"
+    - "&f/rank mover <rank> <cima|baixo> &7- hierarquia"
+    - "&f/rank recarregar"
+  ajuda-tag:
+    - "&8&m   &r &bBRanks &7- Tags &8&m   "
+    - "&f/tag lista &7- lista as tags"
+    - "&f/tag <nome> &7- usa uma tag"
+    - "&f/tag remover &7- tira sua tag"
+  ajuda-tag-admin:
+    - "&f/tag definir <jogador> <tag|nenhuma> &7(ou /settag)"
+    - "&f/tag criar <nome> <texto>"
+    - "&f/tag apagar <tag>"
+    - "&f/tag texto <tag> <texto>"
+    - "&f/tag permissao <tag> <permissão|nenhuma>"

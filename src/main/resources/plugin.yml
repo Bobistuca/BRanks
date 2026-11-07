@@ -1,0 +1,31 @@
+name: BRanks
+main: com.branks.BRanks
+version: 1.0.0
+api-version: '1.13'
+author: Bobistuca
+description: Plugin simples de ranks e tags com permissoes, 100 por cento configuravel por comandos ou arquivos.
+commands:
+  rank:
+    description: Gerencia os ranks
+    usage: /<command>
+    aliases: [ranks, brank]
+  tag:
+    description: Escolhe ou gerencia tags
+    usage: /<command>
+    aliases: [tags, btag]
+  setrank:
+    description: Define o rank de um jogador
+    usage: /<command> <jogador> <rank>
+  settag:
+    description: Define a tag de um jogador
+    usage: /<command> <jogador> <tag>
+permissions:
+  branks.admin:
+    description: Permite gerenciar ranks e tags
+    default: op
+  branks.tag.usar:
+    description: Permite escolher tags
+    default: true
+  branks.chat.cores:
+    description: Permite usar cores no chat
+    default: op
