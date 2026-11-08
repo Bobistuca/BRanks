@@ -23,13 +23,24 @@ public class DataStore {
                     + "Fields: name, prefix, suffix, color (player name color), chat-color (message color),\n"
                     + "default (true = rank of new players), inherits (other ranks), permissions.\n"
                     + "A permission starting with - removes that permission (e.g. -essentials.fly). \"*\" = all.\n"
-                    + "Run /rank reload after editing. Comments are erased whenever a command saves the file.";
+                    + "Run /rank reload after editing. Comments are erased whenever a command saves the file.\n"
+                    + "Nothing is preset: create your own with /rank create <name>. Example entry:\n"
+                    + "  vip:\n"
+                    + "    name: VIP\n"
+                    + "    prefix: \"&6[VIP]\"\n"
+                    + "    color: gold\n"
+                    + "    inherits: [member]\n"
+                    + "    permissions: [some.permission]";
     private static final String HEADER_TAGS =
             "BRanks - tags\n"
                     + "text: how the tag looks (supports colors).\n"
                     + "permission: players with this permission can use the tag.\n"
                     + "rank: players with this rank OR ANY HIGHER RANK can use the tag.\n"
                     + "A tag is unlocked by the permission OR by the rank. With neither set, everyone can use it.\n"
+                    + "Nothing is preset: create your own with /tag create <name> <text>. Example entry:\n"
+                    + "  vip:\n"
+                    + "    text: \"&6[VIP]\"\n"
+                    + "    rank: vip\n"
                     + "Run /rank reload after editing.";
     private static final String HEADER_PLAYERS =
             "BRanks - player data (generated automatically)";
@@ -58,7 +69,7 @@ public class DataStore {
 
     private void loadRanks() {
         if (!fRanks.exists()) {
-            ranks = defaultRanks();
+            ranks = new LinkedHashMap<String, Rank>(); // starts empty: you create your own ranks
             saveRanks();
             return;
         }
@@ -91,7 +102,7 @@ public class DataStore {
 
     private void loadTags() {
         if (!fTags.exists()) {
-            tags = defaultTags();
+            tags = new LinkedHashMap<String, Tag>(); // starts empty: you create your own tags
             saveTags();
             return;
         }
@@ -183,51 +194,6 @@ public class DataStore {
             }
         }
         FileUtil.save(pl, fPlayers, y, HEADER_PLAYERS);
-    }
-
-    // ------------------------------------------------------------------ defaults
-
-    private Map<String, Rank> defaultRanks() {
-        Map<String, Rank> m = new LinkedHashMap<String, Rank>();
-        addRank(m, "owner", "Owner", "&4[Owner]", "dark-red", "white", false, "*");
-        addRank(m, "admin", "Admin", "&c[Admin]", "red", "white", false,
-                "branks.admin", "branks.chat.colors");
-        addRank(m, "moderator", "Moderator", "&2[Mod]", "dark-green", "", false,
-                "branks.chat.colors");
-        addRank(m, "elite", "Elite", "&b[Elite]", "aqua", "", false, "branks.tag.elite");
-        addRank(m, "vip", "VIP", "&6[VIP]", "gold", "", false, "branks.tag.vip");
-        addRank(m, "member", "Member", "&7[Member]", "gray", "", true);
-        return m;
-    }
-
-    private void addRank(Map<String, Rank> m, String id, String name, String prefix, String color,
-                         String chatColor, boolean isDefault, String... perms) {
-        Rank r = new Rank(id);
-        r.name = name;
-        r.prefix = prefix;
-        r.color = color;
-        r.chatColor = chatColor;
-        r.isDefault = isDefault;
-        for (String p : perms) {
-            r.permissions.add(p);
-        }
-        m.put(id, r);
-    }
-
-    private Map<String, Tag> defaultTags() {
-        Map<String, Tag> m = new LinkedHashMap<String, Tag>();
-        Tag elite = new Tag("elite", "&b[Elite]");
-        elite.rank = "elite";
-        Tag vip = new Tag("vip", "&6[VIP]");
-        vip.rank = "vip";
-        Tag legend = new Tag("legend", "&d[Legend]");
-        legend.permission = "branks.tag.legend";
-        Tag gamer = new Tag("gamer", "&a[Gamer]");
-        m.put(elite.id, elite);
-        m.put(vip.id, vip);
-        m.put(legend.id, legend);
-        m.put(gamer.id, gamer);
-        return m;
     }
 
     // ------------------------------------------------------------------ ranks

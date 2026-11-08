@@ -6,6 +6,7 @@ It is a single jar with **no dependencies**: LuckPerms is not required (but it w
 ## Installation
 1. Put `BRanks-1.1.0.jar` in your server's `plugins/` folder.
 2. Start the server. `config.yml`, `ranks.yml`, `tags.yml` and `players.yml` are created in `plugins/BRanks/`.
+3. **Nothing is preset.** There are no default ranks or tags: create exactly what your server needs with `/rank create`, `/tag create` (or by editing the files). The examples below are only examples.
 
 ## Concepts
 - **Rank**: a player's group (prefix, suffix, colors, permissions). Each player has one rank.

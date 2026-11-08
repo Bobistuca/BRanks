@@ -77,7 +77,7 @@ public final class FileUtil {
         }
         sb.append('\n');
         for (String line : y.saveToString().split("\n")) {
-            if (line.trim().startsWith("#")) {
+            if (line.trim().startsWith("#") || line.trim().equals("{}")) {
                 continue;
             }
             sb.append(line).append('\n');
