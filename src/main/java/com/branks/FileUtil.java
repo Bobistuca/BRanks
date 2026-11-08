@@ -16,15 +16,15 @@ import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.logging.Level;
 
-/** Leitura/escrita de YAML sempre em UTF-8 (acentos funcionam em qualquer versao). */
-public final class Arquivos {
+/** YAML reading/writing, always in UTF-8 (accents work on every version). */
+public final class FileUtil {
     public static final Charset UTF8 = Charset.forName("UTF-8");
 
-    private Arquivos() {
+    private FileUtil() {
     }
 
-    /** Le um YAML. Retorna null se o arquivo estiver com erro (e guarda uma copia .erro). */
-    public static YamlConfiguration ler(BRanks pl, File f) {
+    /** Reads a YAML file. Returns null if the file is broken (a .error copy is kept). */
+    public static YamlConfiguration read(BRanks pl, File f) {
         YamlConfiguration y = new YamlConfiguration();
         if (!f.exists()) {
             return y;
@@ -35,12 +35,12 @@ public final class Arquivos {
             y.load(r);
             return y;
         } catch (IOException e) {
-            pl.getLogger().log(Level.SEVERE, "Nao foi possivel ler " + f.getName(), e);
+            pl.getLogger().log(Level.SEVERE, "Could not read " + f.getName(), e);
         } catch (InvalidConfigurationException e) {
-            pl.getLogger().severe("O arquivo " + f.getName() + " tem erro de formatacao: " + e.getMessage());
-            pl.getLogger().severe("Uma copia foi salva em " + f.getName() + ".erro. Corrija o arquivo e use /rank recarregar.");
+            pl.getLogger().severe("File " + f.getName() + " has a formatting error: " + e.getMessage());
+            pl.getLogger().severe("A copy was saved as " + f.getName() + ".error. Fix the file and run /rank reload.");
             try {
-                Files.copy(f.toPath(), new File(f.getParentFile(), f.getName() + ".erro").toPath(),
+                Files.copy(f.toPath(), new File(f.getParentFile(), f.getName() + ".error").toPath(),
                         StandardCopyOption.REPLACE_EXISTING);
             } catch (IOException ignored) {
             }
@@ -55,7 +55,7 @@ public final class Arquivos {
         return null;
     }
 
-    public static YamlConfiguration lerRecurso(InputStream in) {
+    public static YamlConfiguration readResource(InputStream in) {
         YamlConfiguration y = new YamlConfiguration();
         if (in == null) {
             return y;
@@ -69,33 +69,33 @@ public final class Arquivos {
         return y;
     }
 
-    /** Salva o YAML com um cabecalho explicativo (comentarios antigos sao descartados). */
-    public static void salvar(BRanks pl, File f, YamlConfiguration y, String cabecalho) {
+    /** Saves the YAML with an explanatory header (old comments are discarded). */
+    public static void save(BRanks pl, File f, YamlConfiguration y, String header) {
         StringBuilder sb = new StringBuilder();
-        for (String l : cabecalho.split("\n")) {
+        for (String l : header.split("\n")) {
             sb.append("# ").append(l).append('\n');
         }
         sb.append('\n');
-        for (String linha : y.saveToString().split("\n")) {
-            if (linha.trim().startsWith("#")) {
+        for (String line : y.saveToString().split("\n")) {
+            if (line.trim().startsWith("#")) {
                 continue;
             }
-            sb.append(linha).append('\n');
+            sb.append(line).append('\n');
         }
         OutputStream out = null;
         try {
-            File pai = f.getParentFile();
-            if (pai != null && !pai.exists()) {
-                pai.mkdirs();
+            File parent = f.getParentFile();
+            if (parent != null && !parent.exists()) {
+                parent.mkdirs();
             }
-            File tmp = new File(pai, f.getName() + ".tmp");
+            File tmp = new File(parent, f.getName() + ".tmp");
             out = new FileOutputStream(tmp);
             out.write(sb.toString().getBytes(UTF8));
             out.close();
             out = null;
             Files.move(tmp.toPath(), f.toPath(), StandardCopyOption.REPLACE_EXISTING);
         } catch (IOException e) {
-            pl.getLogger().log(Level.SEVERE, "Nao foi possivel salvar " + f.getName(), e);
+            pl.getLogger().log(Level.SEVERE, "Could not save " + f.getName(), e);
         } finally {
             if (out != null) {
                 try {

@@ -5,22 +5,22 @@ import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Rank {
     public final String id;
-    public volatile String nome;
-    public volatile String prefixo = "";
-    public volatile String sufixo = "";
-    public volatile String cor = "";
-    public volatile String corChat = "";
-    public volatile boolean padrao;
-    public final List<String> permissoes = new CopyOnWriteArrayList<String>();
-    public final List<String> herda = new CopyOnWriteArrayList<String>();
+    public volatile String name;
+    public volatile String prefix = "";
+    public volatile String suffix = "";
+    public volatile String color = "";
+    public volatile String chatColor = "";
+    public volatile boolean isDefault;
+    public final List<String> permissions = new CopyOnWriteArrayList<String>();
+    public final List<String> inherits = new CopyOnWriteArrayList<String>();
 
     public Rank(String id) {
         this.id = id;
-        this.nome = id;
+        this.name = id;
     }
 
-    /** Nome de exibicao ja colorido. */
-    public String nomeColorido() {
-        return Cores.traduzir(Cores.codigo(cor) + nome);
+    /** Display name with the rank color applied. */
+    public String coloredName() {
+        return Colors.translate(Colors.code(color) + name);
     }
 }

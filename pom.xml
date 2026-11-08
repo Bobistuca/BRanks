@@ -6,12 +6,12 @@
 
     <groupId>com.branks</groupId>
     <artifactId>BRanks</artifactId>
-    <version>1.0.0</version>
+    <version>1.1.0</version>
     <packaging>jar</packaging>
     <name>BRanks</name>
 
     <properties>
-        <!-- Compila para Java 8 contra a API 1.8.8: roda do 1.8 ate as versoes mais novas -->
+        <!-- Compiles for Java 8 against the 1.8.8 API: runs from 1.8 up to the newest versions -->
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

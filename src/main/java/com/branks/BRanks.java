@@ -1,8 +1,10 @@
 package com.branks;
 
 import org.bukkit.Bukkit;
+import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.PluginCommand;
+import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -11,97 +13,97 @@ import java.util.List;
 
 public class BRanks extends JavaPlugin {
     private Config config;
-    private Dados dados;
-    private Aplicador aplicador;
+    private DataStore data;
+    private Applier applier;
 
     @Override
     public void onEnable() {
         config = new Config(this);
-        config.carregar();
-        dados = new Dados(this);
-        dados.carregar();
-        aplicador = new Aplicador(this);
+        config.load();
+        data = new DataStore(this);
+        data.load();
+        applier = new Applier(this);
 
-        ComandoRank rank = new ComandoRank(this);
-        ComandoTag tag = new ComandoTag(this);
-        registrar("rank", rank, rank);
-        registrar("setrank", rank, rank);
-        registrar("tag", tag, tag);
-        registrar("settag", tag, tag);
+        RankCommand rank = new RankCommand(this);
+        TagCommand tag = new TagCommand(this);
+        register("rank", rank, rank);
+        register("setrank", rank, rank);
+        register("tag", tag, tag);
+        register("settag", tag, tag);
 
-        Bukkit.getPluginManager().registerEvents(new Eventos(this), this);
+        Bukkit.getPluginManager().registerEvents(new Events(this), this);
 
-        aplicador.limparTimes();
-        aplicador.aplicarTodos();
-        getLogger().info("BRanks ativado: " + dados.ranks().size() + " ranks, " + dados.tags().size() + " tags.");
+        applier.clearTeams();
+        applier.applyAll();
+        getLogger().info("BRanks enabled: " + data.ranks().size() + " ranks, " + data.tags().size() + " tags.");
     }
 
     @Override
     public void onDisable() {
-        if (aplicador != null) {
-            aplicador.removerTudo();
+        if (applier != null) {
+            applier.removeAll();
         }
-        if (dados != null) {
-            dados.salvarJogadores();
+        if (data != null) {
+            data.savePlayers();
         }
     }
 
-    private void registrar(String nome, org.bukkit.command.CommandExecutor ex, org.bukkit.command.TabCompleter tc) {
-        PluginCommand c = getCommand(nome);
+    private void register(String name, CommandExecutor ex, TabCompleter tc) {
+        PluginCommand c = getCommand(name);
         if (c != null) {
             c.setExecutor(ex);
             c.setTabCompleter(tc);
         }
     }
 
-    public void recarregar() {
-        aplicador.removerTudo();
-        config.carregar();
-        dados.carregar();
-        aplicador.aplicarTodos();
+    public void reload() {
+        applier.removeAll();
+        config.load();
+        data.load();
+        applier.applyAll();
     }
 
     public Config cfg() {
         return config;
     }
 
-    public Dados dados() {
-        return dados;
+    public DataStore data() {
+        return data;
     }
 
-    public Aplicador aplicador() {
-        return aplicador;
+    public Applier applier() {
+        return applier;
     }
 
-    // ------------------------------------------------------------------ mensagens
+    // ------------------------------------------------------------------ messages
 
-    /** Mensagem do config.yml com variaveis: msg("chave", "jogador", "Steve", "rank", "VIP"). */
-    public String msg(String chave, String... pares) {
-        String t = config.texto("mensagens." + chave);
+    /** Message from config.yml with variables: msg("key", "player", "Steve", "rank", "VIP"). */
+    public String msg(String key, String... pairs) {
+        String t = config.text("messages." + key);
         if (t == null) {
-            t = "&c[mensagem ausente: " + chave + "]";
+            t = "&c[missing message: " + key + "]";
         }
-        return aplicarVars(t, pares);
+        return applyVars(t, pairs);
     }
 
-    public static String aplicarVars(String t, String... pares) {
-        for (int i = 0; i + 1 < pares.length; i += 2) {
-            t = t.replace("{" + pares[i] + "}", pares[i + 1] == null ? "" : pares[i + 1]);
+    public static String applyVars(String t, String... pairs) {
+        for (int i = 0; i + 1 < pairs.length; i += 2) {
+            t = t.replace("{" + pairs[i] + "}", pairs[i + 1] == null ? "" : pairs[i + 1]);
         }
-        return Cores.traduzir(t);
+        return Colors.translate(t);
     }
 
-    public void enviar(CommandSender s, String chave, String... pares) {
-        s.sendMessage(msg(chave, pares));
+    public void send(CommandSender s, String key, String... pairs) {
+        s.sendMessage(msg(key, pairs));
     }
 
-    public void enviarLista(CommandSender s, String chave, String... pares) {
-        for (String linha : config.lista("mensagens." + chave)) {
-            s.sendMessage(aplicarVars(linha, pares));
+    public void sendList(CommandSender s, String key, String... pairs) {
+        for (String line : config.list("messages." + key)) {
+            s.sendMessage(applyVars(line, pairs));
         }
     }
 
-    public List<String> nomesOnline() {
+    public List<String> onlineNames() {
         List<String> l = new ArrayList<String>();
         for (Player p : Bukkit.getOnlinePlayers()) {
             l.add(p.getName());

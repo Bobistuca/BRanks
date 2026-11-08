@@ -12,19 +12,19 @@ import java.util.UUID;
 import java.util.regex.Pattern;
 
 final class Util {
-    private static final Pattern ID_VALIDO = Pattern.compile("^[A-Za-z0-9_-]{1,16}$");
+    private static final Pattern VALID_ID = Pattern.compile("^[A-Za-z0-9_-]{1,16}$");
 
     private Util() {
     }
 
-    static boolean idValido(String s) {
-        return ID_VALIDO.matcher(s).matches();
+    static boolean isValidId(String s) {
+        return VALID_ID.matcher(s).matches();
     }
 
-    static String juntar(String[] a, int de) {
+    static String join(String[] a, int from) {
         StringBuilder sb = new StringBuilder();
-        for (int i = de; i < a.length; i++) {
-            if (i > de) {
+        for (int i = from; i < a.length; i++) {
+            if (i > from) {
                 sb.append(' ');
             }
             sb.append(a[i]);
@@ -32,54 +32,53 @@ final class Util {
         return sb.toString();
     }
 
-    static String[] resto(String[] a, int de) {
-        return de >= a.length ? new String[0] : Arrays.copyOfRange(a, de, a.length);
+    static String[] rest(String[] a, int from) {
+        return from >= a.length ? new String[0] : Arrays.copyOfRange(a, from, a.length);
     }
 
-    static boolean vazioOuNenhum(String s) {
+    static boolean isEmptyOrNone(String s) {
         String t = s.trim().toLowerCase();
-        return t.isEmpty() || t.equals("nenhum") || t.equals("nenhuma") || t.equals("none")
-                || t.equals("limpar") || t.equals("-");
+        return t.isEmpty() || t.equals("none") || t.equals("nothing") || t.equals("clear") || t.equals("-");
     }
 
-    static List<String> filtrar(List<String> opcoes, String inicio) {
+    static List<String> filter(List<String> options, String start) {
         List<String> r = new ArrayList<String>();
-        String i = inicio.toLowerCase();
-        for (String o : opcoes) {
-            if (o.toLowerCase().startsWith(i)) {
+        String s = start.toLowerCase();
+        for (String o : options) {
+            if (o.toLowerCase().startsWith(s)) {
                 r.add(o);
             }
         }
         return r;
     }
 
-    /** Jogador alvo de um comando (online ou que ja entrou alguma vez no servidor). */
-    static final class Alvo {
+    /** Target player of a command (online, or someone who joined the server before). */
+    static final class Target {
         final UUID uuid;
-        final String nome;
+        final String name;
         final Player online;
 
-        Alvo(UUID uuid, String nome, Player online) {
+        Target(UUID uuid, String name, Player online) {
             this.uuid = uuid;
-            this.nome = nome;
+            this.name = name;
             this.online = online;
         }
     }
 
     @SuppressWarnings("deprecation")
-    static Alvo resolver(BRanks pl, String nome) {
-        Player on = Bukkit.getPlayerExact(nome);
+    static Target resolve(BRanks pl, String name) {
+        Player on = Bukkit.getPlayerExact(name);
         if (on != null) {
-            return new Alvo(on.getUniqueId(), on.getName(), on);
+            return new Target(on.getUniqueId(), on.getName(), on);
         }
-        for (Map.Entry<UUID, Jogador> e : pl.dados().jogadores().entrySet()) {
-            if (nome.equalsIgnoreCase(e.getValue().nome)) {
-                return new Alvo(e.getKey(), e.getValue().nome, null);
+        for (Map.Entry<UUID, PlayerData> e : pl.data().players().entrySet()) {
+            if (name.equalsIgnoreCase(e.getValue().name)) {
+                return new Target(e.getKey(), e.getValue().name, null);
             }
         }
-        OfflinePlayer op = Bukkit.getOfflinePlayer(nome);
+        OfflinePlayer op = Bukkit.getOfflinePlayer(name);
         if (op != null && op.hasPlayedBefore()) {
-            return new Alvo(op.getUniqueId(), op.getName() == null ? nome : op.getName(), null);
+            return new Target(op.getUniqueId(), op.getName() == null ? name : op.getName(), null);
         }
         return null;
     }

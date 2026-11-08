@@ -6,7 +6,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
-/** config.yml (somente leitura: o plugin nunca reescreve, entao seus comentarios ficam). */
+/** config.yml (read only: the plugin never rewrites it, so your comments are kept). */
 public class Config {
     private final BRanks pl;
     private YamlConfiguration cfg = new YamlConfiguration();
@@ -15,33 +15,33 @@ public class Config {
         this.pl = pl;
     }
 
-    public void carregar() {
+    public void load() {
         File f = new File(pl.getDataFolder(), "config.yml");
         if (!f.exists()) {
             pl.saveResource("config.yml", false);
         }
-        YamlConfiguration lido = Arquivos.ler(pl, f);
-        if (lido == null) {
+        YamlConfiguration read = FileUtil.read(pl, f);
+        if (read == null) {
             if (cfg.getKeys(false).isEmpty()) {
-                lido = new YamlConfiguration(); // so usa os padroes embutidos
+                read = new YamlConfiguration(); // fall back to the built-in defaults only
             } else {
                 return;
             }
         }
-        lido.setDefaults(Arquivos.lerRecurso(pl.getResource("config.yml")));
-        cfg = lido;
+        read.setDefaults(FileUtil.readResource(pl.getResource("config.yml")));
+        cfg = read;
     }
 
-    public boolean bool(String caminho) {
-        return cfg.getBoolean(caminho);
+    public boolean bool(String path) {
+        return cfg.getBoolean(path);
     }
 
-    public String texto(String caminho) {
-        return cfg.getString(caminho);
+    public String text(String path) {
+        return cfg.getString(path);
     }
 
-    public List<String> lista(String caminho) {
-        List<String> l = cfg.getStringList(caminho);
+    public List<String> list(String path) {
+        List<String> l = cfg.getStringList(path);
         return l == null ? new ArrayList<String>() : l;
     }
 }

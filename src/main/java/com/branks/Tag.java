@@ -2,16 +2,23 @@ package com.branks;
 
 public class Tag {
     public final String id;
-    public volatile String texto;
-    /** Permissao necessaria para usar a tag. Vazio = qualquer um pode usar. */
-    public volatile String permissao = "";
+    public volatile String text;
+    /** Permission that unlocks the tag. Empty = no permission requirement. */
+    public volatile String permission = "";
+    /** Lowest rank that unlocks the tag (every higher rank unlocks it too). Empty = no rank requirement. */
+    public volatile String rank = "";
 
-    public Tag(String id, String texto) {
+    public Tag(String id, String text) {
         this.id = id;
-        this.texto = texto;
+        this.text = text;
     }
 
-    public String textoColorido() {
-        return Cores.traduzir(texto);
+    public String coloredText() {
+        return Colors.translate(text);
+    }
+
+    /** True when anybody can use the tag (no permission and no rank requirement). */
+    public boolean isFree() {
+        return permission.isEmpty() && rank.isEmpty();
     }
 }
