@@ -16,7 +16,7 @@ public class RankCommand implements CommandExecutor, TabCompleter {
 
     private static final List<String> PUBLIC_SUBS = Arrays.asList("help", "list", "info");
     private static final List<String> ADMIN_SUBS = Arrays.asList("set", "create", "delete", "name",
-            "prefix", "suffix", "color", "chatcolor", "permission", "inherit", "default", "move", "reload");
+            "prefix", "suffix", "color", "chatcolor", "permission", "inherit", "default", "level", "reload");
 
     public RankCommand(BRanks pl) {
         this.pl = pl;
@@ -84,7 +84,7 @@ public class RankCommand implements CommandExecutor, TabCompleter {
             case "permission": permission(s, r); break;
             case "inherit": inherit(s, r); break;
             case "default": makeDefault(s, r); break;
-            case "move": move(s, r); break;
+            case "level": level(s, r); break;
             default:
                 pl.reload();
                 pl.send(s, "reloaded");
@@ -121,10 +121,9 @@ public class RankCommand implements CommandExecutor, TabCompleter {
             return;
         }
         pl.send(s, "rank-list-title");
-        int position = 1;
         for (Rank r : ranks.values()) {
             pl.send(s, "rank-list-line",
-                    "position", String.valueOf(position++),
+                    "level", String.valueOf(r.level),
                     "id", r.id,
                     "prefix", r.prefix.isEmpty() ? "" : Applier.withSpace(r.prefix),
                     "color", Colors.code(r.color),
@@ -194,7 +193,7 @@ public class RankCommand implements CommandExecutor, TabCompleter {
 
     private void create(CommandSender s, String[] r) {
         if (r.length < 1) {
-            usage(s, "/rank create <name>");
+            usage(s, "/rank create <name> [level " + Rank.MIN_LEVEL + "-" + Rank.MAX_LEVEL + "]");
             return;
         }
         if (!Util.isValidId(r[0])) {
@@ -210,7 +209,13 @@ public class RankCommand implements CommandExecutor, TabCompleter {
             pl.send(s, "rank-exists", "rank", r[0]);
             return;
         }
-        Rank rank = pl.data().createRank(low, r[0]);
+        Integer level = r.length > 1 ? parseLevel(r[1]) : Integer.valueOf(Rank.MIN_LEVEL);
+        if (level == null) {
+            pl.send(s, "invalid-level", "min", String.valueOf(Rank.MIN_LEVEL), "max", String.valueOf(Rank.MAX_LEVEL));
+            return;
+        }
+        Rank rank = pl.data().createRank(low, r[0], level);
+        pl.applier().applyAll();
         pl.send(s, "rank-created", "rank", rank.coloredName());
     }
 
@@ -371,28 +376,32 @@ public class RankCommand implements CommandExecutor, TabCompleter {
         pl.send(s, "default-set", "rank", rank.coloredName());
     }
 
-    private void move(CommandSender s, String[] r) {
+    private void level(CommandSender s, String[] r) {
         if (r.length < 2) {
-            usage(s, "/rank move <rank> <up|down>");
+            usage(s, "/rank level <rank> <" + Rank.MIN_LEVEL + "-" + Rank.MAX_LEVEL + ">");
             return;
         }
         Rank rank = rankOrError(s, r[0]);
         if (rank == null) {
             return;
         }
-        String d = r[1].toLowerCase();
-        boolean up = d.equals("up");
-        boolean down = d.equals("down");
-        if (!up && !down) {
-            usage(s, "/rank move <rank> <up|down>");
+        Integer level = parseLevel(r[1]);
+        if (level == null) {
+            pl.send(s, "invalid-level", "min", String.valueOf(Rank.MIN_LEVEL), "max", String.valueOf(Rank.MAX_LEVEL));
             return;
         }
-        if (!pl.data().move(rank.id, up)) {
-            pl.send(s, "move-limit", "rank", rank.coloredName());
-            return;
-        }
+        pl.data().setLevel(rank, level);
         pl.applier().applyAll();
-        pl.send(s, "move-ok", "rank", rank.coloredName());
+        pl.send(s, "level-set", "rank", rank.coloredName(), "level", String.valueOf(level));
+    }
+
+    private static Integer parseLevel(String s) {
+        try {
+            int v = Integer.parseInt(s);
+            return v >= Rank.MIN_LEVEL && v <= Rank.MAX_LEVEL ? v : null;
+        } catch (NumberFormatException e) {
+            return null;
+        }
     }
 
     private static String joinList(List<String> l) {
@@ -461,9 +470,6 @@ public class RankCommand implements CommandExecutor, TabCompleter {
             }
             if (sub.equals("inherit")) {
                 return Util.filter(Arrays.asList("add", "remove"), a[2]);
-            }
-            if (sub.equals("move")) {
-                return Util.filter(Arrays.asList("up", "down"), a[2]);
             }
             if (sub.equals("prefix") || sub.equals("suffix")) {
                 return Util.filter(Arrays.asList("none"), a[2]);

@@ -6,13 +6,13 @@ It is a single jar with **no dependencies**: LuckPerms is not required (but it w
 ## Installation
 1. Put `BRanks-1.1.0.jar` in your server's `plugins/` folder.
 2. Start the server. `config.yml`, `ranks.yml`, `tags.yml` and `players.yml` are created in `plugins/BRanks/`.
-3. **Nothing is preset.** There are no default ranks or tags: create exactly what your server needs with `/rank create`, `/tag create` (or by editing the files). The examples below are only examples.
+3. On the first run, `ranks.yml` is filled with a starter ladder: **Membro (1), VIP (100), Fire (300), HELPER (800), MOD (1200), MOD+ (1600), ADMIN (2000), OWNER (2556)**. Edit, rename or delete any of them, or add your own. Tags start empty: create yours with `/tag create`.
 
 ## Concepts
 - **Rank**: a player's group (prefix, suffix, colors, permissions). Each player has one rank.
 - **Tag**: an extra decoration the player picks (`/tag vip`). It can require a rank, a permission, or both.
-- **Hierarchy without numbers**: the **order** of the ranks in `ranks.yml` is the hierarchy (first = highest). Use `/rank move`.
-- **Higher ranks unlock lower tags**: a tag with `rank: vip` can be used by VIP **and every rank above it** (e.g. Elite, Admin, Owner). So an Elite player can also pick the VIP tag.
+- **Levels**: every rank has a level from **1 (lowest) to 2556 (highest)**. The higher the number, the higher the rank. Change it with `/rank level`.
+- **Higher ranks unlock lower tags**: a tag with `rank: vip` can be used by VIP **and every rank with a higher level** (e.g. Fire, MOD, OWNER). So a Fire player can also pick the VIP tag.
 - **Colors**: `&a`, `&l`, names (`red`, `blue`, `gold`...) or hex `#FF8800` (1.16+; older versions use the closest color).
 
 ## Commands
@@ -22,10 +22,10 @@ Type `/rank` or `/tag help` for an organized in-game menu.
 | Command | What it does |
 |---|---|
 | `/rank help` | Command menu (admin sections only show for admins) |
-| `/rank list` | List the ranks, highest first |
+| `/rank list` | List the ranks with their levels, highest first |
 | `/rank info [player]` | Show a player's rank and tag |
 | `/rank set <player> <rank\|default>` (or `/setrank`) | Set a rank. `default` resets the player |
-| `/rank create <name>` / `delete <rank>` | Create / delete a rank |
+| `/rank create <name> [level]` / `delete <rank>` | Create (level 1-2556, default 1) / delete a rank |
 | `/rank name <rank> <text>` | Display name |
 | `/rank prefix <rank> <text\|none>` | Prefix |
 | `/rank suffix <rank> <text\|none>` | Suffix |
@@ -34,7 +34,7 @@ Type `/rank` or `/tag help` for an organized in-game menu.
 | `/rank permission <rank> <add\|remove\|list> [perm]` | Rank permissions |
 | `/rank inherit <rank> <add\|remove> <other>` | Inherit permissions from another rank |
 | `/rank default <rank>` | Rank of new players |
-| `/rank move <rank> <up\|down>` | Change the hierarchy |
+| `/rank level <rank> <1-2556>` | Change the rank level (hierarchy) |
 | `/rank reload` | Reload the files |
 
 ### Tags
@@ -59,23 +59,25 @@ A tag is unlocked by its **rank OR its permission**. With neither set, everyone 
 - In `ranks.yml`: `"*"` grants every permission and `-permission` removes one.
 
 ## File configuration
-`ranks.yml` (order = hierarchy, first is the highest):
+`ranks.yml` (listed from the highest level to the lowest):
 ```yaml
-elite:
-  name: Elite
-  prefix: "&b[Elite]"
+fire:
+  level: 300
+  name: Fire
+  prefix: "&6[Fire]"
   suffix: ""
-  color: aqua
+  color: gold
   chat-color: ""
   default: false
   inherits: [vip]
   permissions:
-    - branks.tag.elite
+    - some.permission
 vip:
+  level: 100
   name: VIP
-  prefix: "&6[VIP]"
-  color: gold
-  inherits: [member]
+  prefix: "&a[VIP]"
+  color: green
+  inherits: [membro]
 ```
 `tags.yml`:
 ```yaml
@@ -91,6 +93,9 @@ Placeholders: `{player} {tag} {prefix} {suffix} {rank} {color} {chatcolor} {mess
 If you prefer LuckPerms to handle permissions, set `permissions.enabled: false` in `config.yml`.
 BRanks keeps handling prefix, tag, chat and tab. Rank-based tag access still works, and a permission-based tag just needs that permission (e.g. `branks.tag.vip`) granted through LuckPerms.
 If another plugin already formats the chat, use `chat.enabled: false`.
+
+## Upgrading
+If you ran an earlier 1.1.0 build, delete `ranks.yml` (or add a `level:` to each rank) so the new levels apply: ranks without a level are treated as level 1.
 
 ## Upgrading from 1.0.0
 Version 1.1.0 translated everything to English, including the file names and keys:

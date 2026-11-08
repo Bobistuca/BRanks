@@ -10,6 +10,10 @@ public class Rank {
     public volatile String suffix = "";
     public volatile String color = "";
     public volatile String chatColor = "";
+    /** Hierarchy level, from MIN_LEVEL (lowest) to MAX_LEVEL (highest). */
+    public static final int MIN_LEVEL = 1;
+    public static final int MAX_LEVEL = 2556;
+    public volatile int level = MIN_LEVEL;
     public volatile boolean isDefault;
     public final List<String> permissions = new CopyOnWriteArrayList<String>();
     public final List<String> inherits = new CopyOnWriteArrayList<String>();

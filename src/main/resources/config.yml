@@ -5,9 +5,9 @@
 #  Everything can be done with commands (/rank and /tag) or by editing
 #  the files and running /rank reload.
 #
-#  Hierarchy: the ORDER of the ranks in ranks.yml defines who is higher
-#  (the first one is the highest). There are no weight numbers.
-#  Tags can require a rank: that rank AND every rank above it can use them.
+#  Hierarchy: every rank has a LEVEL from 1 (lowest) to 2556 (highest).
+#  Set it with /rank create <name> <level> or /rank level <rank> <level>.
+#  Tags can require a rank: that rank AND every rank with a higher level can use them.
 #
 #  Colors: &a, &l ... | names (red, blue, gold) | hex (#FF8800, 1.16+)
 #
@@ -62,11 +62,11 @@ messages:
   inherit-removed: "&aThe rank {rank}&a no longer inherits from {other}&a."
   inherit-invalid: "&cYou cannot inherit from that rank (itself, or it would create a loop)."
   inherit-missing: "&cThe rank {rank}&c does not inherit from {other}&c."
-  move-ok: "&aRank {rank}&a moved in the hierarchy."
-  move-limit: "&cThe rank {rank}&c is already at the limit of the hierarchy."
+  level-set: "&aRank {rank}&a is now level &f{level}&a."
+  invalid-level: "&cInvalid level. Use a whole number from {min} (lowest) to {max} (highest)."
   reloaded: "&aBRanks reloaded!"
   rank-list-title: "&8&m      &r &b&lRanks &7(highest to lowest) &8&m      "
-  rank-list-line: "&8#{position} &f{id} &8» {prefix}{color}{name}{default}"
+  rank-list-line: "&8[{level}] &f{id} &8» {prefix}{color}{name}{default}"
   rank-list-default: " &8(default)"
   rank-list-empty: "&7No ranks yet. Use /rank create <name>."
   info-lines:
@@ -110,10 +110,10 @@ messages:
     - "&6&lPlayers &7(admin)"
     - "  &f/rank set <player> <rank|default> &8» &7Set a rank &7(or /setrank)"
     - "&6&lManage ranks"
-    - "  &f/rank create <name> &8» &7Create a rank"
+    - "  &f/rank create <name> [level] &8» &7Create a rank (level 1-2556)"
     - "  &f/rank delete <rank> &8» &7Delete a rank"
     - "  &f/rank default <rank> &8» &7Rank of new players"
-    - "  &f/rank move <rank> <up|down> &8» &7Change the hierarchy"
+    - "  &f/rank level <rank> <1-2556> &8» &7Change the hierarchy level"
     - "&6&lAppearance"
     - "  &f/rank name <rank> <text> &8» &7Display name"
     - "  &f/rank prefix <rank> <text|none> &8» &7Prefix"

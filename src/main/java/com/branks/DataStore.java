@@ -19,13 +19,14 @@ public class DataStore {
 
     private static final String HEADER_RANKS =
             "BRanks - ranks\n"
-                    + "The ORDER below is the hierarchy: the first rank is the highest.\n"
-                    + "Fields: name, prefix, suffix, color (player name color), chat-color (message color),\n"
+                    + "level (1 = lowest, 2556 = highest) is the hierarchy. Ranks are listed from highest to lowest.\n"
+                    + "Fields: level, name, prefix, suffix, color (player name color), chat-color (message color),\n"
                     + "default (true = rank of new players), inherits (other ranks), permissions.\n"
                     + "A permission starting with - removes that permission (e.g. -essentials.fly). \"*\" = all.\n"
                     + "Run /rank reload after editing. Comments are erased whenever a command saves the file.\n"
-                    + "Nothing is preset: create your own with /rank create <name>. Example entry:\n"
+                    + "Example entry:\n"
                     + "  vip:\n"
+                    + "    level: 100\n"
                     + "    name: VIP\n"
                     + "    prefix: \"&6[VIP]\"\n"
                     + "    color: gold\n"
@@ -69,7 +70,7 @@ public class DataStore {
 
     private void loadRanks() {
         if (!fRanks.exists()) {
-            ranks = new LinkedHashMap<String, Rank>(); // starts empty: you create your own ranks
+            ranks = defaultRanks(); // first run only: edit, delete or add ranks freely
             saveRanks();
             return;
         }
@@ -85,6 +86,7 @@ public class DataStore {
             }
             String id = key.toLowerCase();
             Rank r = new Rank(id);
+            r.level = clampLevel(s.getInt("level", Rank.MIN_LEVEL));
             r.name = s.getString("name", key);
             r.prefix = s.getString("prefix", "");
             r.suffix = s.getString("suffix", "");
@@ -97,7 +99,7 @@ public class DataStore {
             r.permissions.addAll(s.getStringList("permissions"));
             loaded.put(id, r);
         }
-        ranks = loaded;
+        ranks = sorted(loaded);
     }
 
     private void loadTags() {
@@ -155,6 +157,7 @@ public class DataStore {
         YamlConfiguration y = new YamlConfiguration();
         for (Rank r : ranks.values()) {
             String p = r.id + ".";
+            y.set(p + "level", r.level);
             y.set(p + "name", r.name);
             y.set(p + "prefix", r.prefix);
             y.set(p + "suffix", r.suffix);
@@ -198,6 +201,56 @@ public class DataStore {
 
     // ------------------------------------------------------------------ ranks
 
+    private static int clampLevel(int level) {
+        return Math.max(Rank.MIN_LEVEL, Math.min(Rank.MAX_LEVEL, level));
+    }
+
+    /** Orders ranks from the highest level to the lowest (ties keep their current order). */
+    private static Map<String, Rank> sorted(Map<String, Rank> in) {
+        List<Rank> list = new ArrayList<Rank>(in.values());
+        java.util.Collections.sort(list, new java.util.Comparator<Rank>() {
+            @Override
+            public int compare(Rank a, Rank b) {
+                return Integer.compare(b.level, a.level);
+            }
+        });
+        Map<String, Rank> out = new LinkedHashMap<String, Rank>();
+        for (Rank r : list) {
+            out.put(r.id, r);
+        }
+        return out;
+    }
+
+    private Map<String, Rank> defaultRanks() {
+        Map<String, Rank> m = new LinkedHashMap<String, Rank>();
+        addRank(m, "membro", "Membro", 1, "&7[Membro]", "gray", true, null);
+        addRank(m, "vip", "VIP", 100, "&a[VIP]", "green", false, "membro");
+        addRank(m, "fire", "Fire", 300, "&6[Fire]", "gold", false, "vip");
+        addRank(m, "helper", "HELPER", 800, "&9[HELPER]", "blue", false, "fire");
+        addRank(m, "mod", "MOD", 1200, "&2[MOD]", "dark-green", false, "helper");
+        addRank(m, "modplus", "MOD+", 1600, "&3[MOD+]", "dark-aqua", false, "mod");
+        addRank(m, "admin", "ADMIN", 2000, "&c[ADMIN]", "red", false, "modplus", "branks.admin", "branks.chat.colors");
+        addRank(m, "owner", "OWNER", Rank.MAX_LEVEL, "&4[OWNER]", "dark-red", false, "admin", "*");
+        return sorted(m);
+    }
+
+    private void addRank(Map<String, Rank> m, String id, String name, int level, String prefix,
+                         String color, boolean isDefault, String inherits, String... perms) {
+        Rank r = new Rank(id);
+        r.name = name;
+        r.level = level;
+        r.prefix = prefix;
+        r.color = color;
+        r.isDefault = isDefault;
+        if (inherits != null) {
+            r.inherits.add(inherits);
+        }
+        for (String p : perms) {
+            r.permissions.add(p);
+        }
+        m.put(id, r);
+    }
+
     public Map<String, Rank> ranks() {
         return ranks;
     }
@@ -238,14 +291,15 @@ public class DataStore {
         return defaultRank();
     }
 
-    public Rank createRank(String id, String name) {
+    public Rank createRank(String id, String name, int level) {
         Rank r = new Rank(id);
         r.name = name;
+        r.level = clampLevel(level);
         r.prefix = "&7[" + name + "]";
         r.color = "gray";
         Map<String, Rank> copy = new LinkedHashMap<String, Rank>(ranks);
         copy.put(id, r);
-        ranks = copy;
+        ranks = sorted(copy);
         saveRanks();
         return r;
     }
@@ -277,24 +331,11 @@ public class DataStore {
         saveRanks();
     }
 
-    /** Moves the rank in the hierarchy. Returns false if it is already at the limit. */
-    public boolean move(String id, boolean up) {
-        List<String> ids = new ArrayList<String>(ranks.keySet());
-        int i = ids.indexOf(id);
-        int j = up ? i - 1 : i + 1;
-        if (i < 0 || j < 0 || j >= ids.size()) {
-            return false;
-        }
-        String tmp = ids.get(i);
-        ids.set(i, ids.get(j));
-        ids.set(j, tmp);
-        Map<String, Rank> reordered = new LinkedHashMap<String, Rank>();
-        for (String k : ids) {
-            reordered.put(k, ranks.get(k));
-        }
-        ranks = reordered;
+    /** Changes the level of a rank and re-sorts the hierarchy. */
+    public void setLevel(Rank r, int level) {
+        r.level = clampLevel(level);
+        ranks = sorted(ranks);
         saveRanks();
-        return true;
     }
 
     /** Final permissions of a rank (including inherited ones). A false value = denied. */
@@ -386,8 +427,8 @@ public class DataStore {
 
     /**
      * A tag is unlocked by its permission OR by its rank requirement. The rank requirement
-     * counts the required rank and every rank above it in the hierarchy, so a player with a
-     * higher rank (e.g. Elite) can also pick the tags of the lower ones (e.g. VIP).
+     * counts the required rank and every rank with an equal or higher level, so a player with a
+     * higher rank (e.g. Fire) can also pick the tags of the lower ones (e.g. VIP).
      */
     public boolean canUse(Player p, Tag t) {
         if (t.isFree()) {
@@ -399,7 +440,7 @@ public class DataStore {
         if (!t.rank.isEmpty()) {
             Rank required = ranks.get(t.rank);
             Rank mine = rankOf(p.getUniqueId());
-            if (required != null && mine != null && indexOf(mine) <= indexOf(required)) {
+            if (required != null && mine != null && mine.level >= required.level) {
                 return true;
             }
         }
