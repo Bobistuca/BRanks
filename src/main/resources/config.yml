@@ -13,6 +13,7 @@
 #
 #  Format placeholders:
 #    {player} {tag} {prefix} {suffix} {rank} {color} {chatcolor} {message}
+#    {display} {displaycolor} (tab list: tag if any, otherwise rank prefix, and its color)
 #  (Spaces between tag/prefix/suffix are added automatically.)
 # ======================================================================
 
@@ -23,9 +24,12 @@ chat:
   # Players with the branks.chat.colors permission can use &a, &l... in chat
   colors-in-message: true
 
+# Tab list: [TAG or RANK] + player name in that tag/rank color.
+# {display} = the tag if the player uses one, otherwise the rank prefix.
+# {displaycolor} = the color of that tag/rank.
 tablist:
   enabled: true
-  format: "{prefix}{color}{player}"
+  format: "{display}{displaycolor}{player}"
 
 # Prefix above the head, and tab list order following the rank hierarchy
 nametag:

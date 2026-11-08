@@ -6,13 +6,13 @@ It is a single jar with **no dependencies**: LuckPerms is not required (but it w
 ## Installation
 1. Put `BRanks-1.1.0.jar` in your server's `plugins/` folder.
 2. Start the server. `config.yml`, `ranks.yml`, `tags.yml` and `players.yml` are created in `plugins/BRanks/`.
-3. On the first run, `ranks.yml` is filled with a starter ladder: **Membro (1), VIP (100), Fire (300), HELPER (800), MOD (1200), MOD+ (1600), ADMIN (2000), OWNER (2556)**. Edit, rename or delete any of them, or add your own. Tags start empty: create yours with `/tag create`.
+3. On the first run, `ranks.yml` is filled with a starter ladder: **MEMBER (1), VIP (100), HELPER (800), MOD (1200), MOD+ (1600), ADMIN (2000), OWNER (2556)**. Edit, rename or delete any of them, or add your own. Tags start empty: create yours with `/tag create`.
 
 ## Concepts
 - **Rank**: a player's group (prefix, suffix, colors, permissions). Each player has one rank.
 - **Tag**: an extra decoration the player picks (`/tag vip`). It can require a rank, a permission, or both.
 - **Levels**: every rank has a level from **1 (lowest) to 2556 (highest)**. The higher the number, the higher the rank. Change it with `/rank level`.
-- **Higher ranks unlock lower tags**: a tag with `rank: vip` can be used by VIP **and every rank with a higher level** (e.g. Fire, MOD, OWNER). So a Fire player can also pick the VIP tag.
+- **Higher ranks unlock lower tags**: a tag with `rank: vip` can be used by VIP **and every rank with a higher level** (e.g. HELPER, MOD, OWNER). So a HELPER player can also pick the VIP tag.
 - **Colors**: `&a`, `&l`, names (`red`, `blue`, `gold`...) or hex `#FF8800` (1.16+; older versions use the closest color).
 
 ## Commands
@@ -61,12 +61,12 @@ A tag is unlocked by its **rank OR its permission**. With neither set, everyone 
 ## File configuration
 `ranks.yml` (listed from the highest level to the lowest):
 ```yaml
-fire:
-  level: 300
-  name: Fire
-  prefix: "&6[Fire]"
+helper:
+  level: 800
+  name: HELPER
+  prefix: "&#3E5A8A[HELPER]"
   suffix: ""
-  color: gold
+  color: "#3E5A8A"
   chat-color: ""
   default: false
   inherits: [vip]
@@ -77,7 +77,7 @@ vip:
   name: VIP
   prefix: "&a[VIP]"
   color: green
-  inherits: [membro]
+  inherits: [member]
 ```
 `tags.yml`:
 ```yaml
@@ -87,7 +87,7 @@ vip:
   permission: branks.tag.vip   # optional: or anyone with this permission
 ```
 `config.yml` controls the chat, tab list and nametag formats and every message (all editable).
-Placeholders: `{player} {tag} {prefix} {suffix} {rank} {color} {chatcolor} {message}`. Spaces between tag, prefix and suffix are automatic.
+Placeholders: `{player} {tag} {prefix} {suffix} {rank} {color} {chatcolor} {message}`, plus `{display}`/`{displaycolor}` for the tab list (the tag if the player uses one, otherwise the rank prefix, and its color). Spaces between tag, prefix and suffix are automatic.
 
 ## Using it with LuckPerms
 If you prefer LuckPerms to handle permissions, set `permissions.enabled: false` in `config.yml`.

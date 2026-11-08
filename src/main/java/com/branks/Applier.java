@@ -110,7 +110,9 @@ public class Applier {
         }
         String full = Colors.translate(render(pl.cfg().text("tablist.format"), p, false));
         Rank r = pl.data().rankOf(p.getUniqueId());
-        String colorOnly = Colors.translate(r == null ? "" : Colors.code(r.color)) + p.getName();
+        Tag tag = pl.data().activeTag(p);
+        String nameColor = tag != null ? Colors.firstColor(tag.text) : (r == null ? "" : Colors.code(r.color));
+        String colorOnly = Colors.translate(nameColor) + p.getName();
         // old versions limit the tab name to 16 characters: try from the fullest to the simplest
         List<String> candidates = new ArrayList<String>();
         candidates.add(full);
@@ -236,6 +238,11 @@ public class Applier {
         Tag t = d.activeTag(p);
         String s = esc(format, chat);
         s = s.replace("{tag}", t == null ? "" : esc(withSpace(t.text), chat));
+        // {display}: the tag if the player uses one, otherwise the rank prefix. {displaycolor}: its color.
+        String display = t != null ? t.text : (r == null ? "" : r.prefix);
+        String displayColor = t != null ? Colors.firstColor(t.text) : (r == null ? "" : Colors.code(r.color));
+        s = s.replace("{display}", esc(withSpace(display), chat));
+        s = s.replace("{displaycolor}", esc(displayColor, chat));
         s = s.replace("{prefix}", r == null ? "" : esc(withSpace(r.prefix), chat));
         s = s.replace("{suffix}", r == null || r.suffix.isEmpty() ? "" : esc(" " + r.suffix.trim(), chat));
         s = s.replace("{rank}", r == null ? "" : esc(r.name, chat));

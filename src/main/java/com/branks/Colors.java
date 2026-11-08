@@ -14,6 +14,7 @@ public final class Colors {
 
     private static final Pattern HEX = Pattern.compile("&#([A-Fa-f0-9]{6})");
     private static final Pattern PLAIN_HEX = Pattern.compile("#([A-Fa-f0-9]{6})");
+    private static final Pattern FIRST_COLOR = Pattern.compile("&#[A-Fa-f0-9]{6}|&[0-9a-fA-F]");
     private static final Pattern CODES = Pattern.compile("(&[0-9a-fA-Fk-oK-OrR])+");
     private static final Map<String, String> NAMES = new LinkedHashMap<String, String>();
     private static final int[][] PALETTE = {
@@ -100,6 +101,15 @@ public final class Colors {
         }
         String code = NAMES.get(normalize(c));
         return code == null ? "" : code;
+    }
+
+    /** The first color code (&c or &#RRGGBB) found in a text, or "" if it has none. */
+    public static String firstColor(String text) {
+        if (text == null) {
+            return "";
+        }
+        Matcher m = FIRST_COLOR.matcher(text);
+        return m.find() ? m.group() : "";
     }
 
     public static boolean isValid(String color) {

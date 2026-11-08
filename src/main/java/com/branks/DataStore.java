@@ -223,12 +223,11 @@ public class DataStore {
 
     private Map<String, Rank> defaultRanks() {
         Map<String, Rank> m = new LinkedHashMap<String, Rank>();
-        addRank(m, "membro", "Membro", 1, "&7[Membro]", "gray", true, null);
-        addRank(m, "vip", "VIP", 100, "&a[VIP]", "green", false, "membro");
-        addRank(m, "fire", "Fire", 300, "&6[Fire]", "gold", false, "vip");
-        addRank(m, "helper", "HELPER", 800, "&9[HELPER]", "blue", false, "fire");
-        addRank(m, "mod", "MOD", 1200, "&2[MOD]", "dark-green", false, "helper");
-        addRank(m, "modplus", "MOD+", 1600, "&3[MOD+]", "dark-aqua", false, "mod");
+        addRank(m, "member", "MEMBER", 1, "&7[MEMBER]", "gray", true, null);
+        addRank(m, "vip", "VIP", 100, "&a[VIP]", "green", false, "member");
+        addRank(m, "helper", "HELPER", 800, "&#3E5A8A[HELPER]", "#3E5A8A", false, "vip");
+        addRank(m, "mod", "MOD", 1200, "&d[MOD]", "light-purple", false, "helper");
+        addRank(m, "modplus", "MOD+", 1600, "&5[MOD+]", "dark-purple", false, "mod");
         addRank(m, "admin", "ADMIN", 2000, "&c[ADMIN]", "red", false, "modplus", "branks.admin", "branks.chat.colors");
         addRank(m, "owner", "OWNER", Rank.MAX_LEVEL, "&4[OWNER]", "dark-red", false, "admin", "*");
         return sorted(m);
@@ -428,7 +427,7 @@ public class DataStore {
     /**
      * A tag is unlocked by its permission OR by its rank requirement. The rank requirement
      * counts the required rank and every rank with an equal or higher level, so a player with a
-     * higher rank (e.g. Fire) can also pick the tags of the lower ones (e.g. VIP).
+     * higher rank (e.g. HELPER) can also pick the tags of the lower ones (e.g. VIP).
      */
     public boolean canUse(Player p, Tag t) {
         if (t.isFree()) {
